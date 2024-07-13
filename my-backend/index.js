@@ -21,7 +21,6 @@ const pool = new Pool({
 const app = express();
 app.use(express.json());
 
-// Configure session middleware
 app.use(
   session({
     store: new RedisStore({ client: redisClient }),
@@ -29,13 +28,12 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // Set to true if using HTTPS
-      maxAge: 3600000, // 1 hour
+      secure: false,
+      maxAge: 3600000, 
     },
   })
 );
 
-// Middleware to check if user is authenticated
 const isAuthenticated = (req, res, next) => {
   if (req.session.userId) {
     next();
@@ -44,7 +42,6 @@ const isAuthenticated = (req, res, next) => {
   }
 };
 
-// Route to handle user login
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
 
@@ -63,17 +60,14 @@ app.post('/api/login', async (req, res) => {
     const passwordMatch = await argon2.verify(hashedPassword, password);
 
     if (passwordMatch) {
-      // Increment the visited count
       const newVisitedCount = visited + 1;
       await pool.query('UPDATE users SET visited = $1 WHERE id = $2', [newVisitedCount, userId]);
 
       req.session.userId = userId;
       req.session.visited = newVisitedCount;
 
-      // Log session information for debugging
       console.log('Session ID:', req.sessionID);
 
-      // Update the user's session_id in the database
       await pool.query('UPDATE users SET session_id = $1 WHERE id = $2', [req.sessionID, userId]);
 
       res.json({ message: 'Login successful', username, visited: newVisitedCount });
@@ -86,7 +80,6 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Route to handle user registration
 app.post('/api/register', async (req, res) => {
   const { username, password } = req.body;
 
@@ -118,7 +111,6 @@ app.get('/api/user', isAuthenticated, async (req, res) => {
   }
 });
 
-// Logout route
 app.post('/api/logout', isAuthenticated, (req, res) => {
   req.session.destroy(err => {
     if (err) {
@@ -131,7 +123,6 @@ app.post('/api/logout', isAuthenticated, (req, res) => {
   });
 });
 
-// Route to increase item quantity
 app.patch('/api/shopping-list/:id/increase', isAuthenticated, async (req, res) => {
   const itemId = req.params.id;
   const userId = req.session.userId;
@@ -145,7 +136,6 @@ app.patch('/api/shopping-list/:id/increase', isAuthenticated, async (req, res) =
   }
 });
 
-// Route to decrease item quantity or delete if zero
 app.patch('/api/shopping-list/:id/decrease', isAuthenticated, async (req, res) => {
   const itemId = req.params.id;
   const userId = req.session.userId;
@@ -167,7 +157,6 @@ app.patch('/api/shopping-list/:id/decrease', isAuthenticated, async (req, res) =
   }
 });
 
-// Route to add item to the shopping list
 app.post('/api/shopping-list', isAuthenticated, async (req, res) => {
   const { item, quantity } = req.body;
   const userId = req.session.userId;
@@ -184,7 +173,6 @@ app.post('/api/shopping-list', isAuthenticated, async (req, res) => {
   }
 });
 
-// Route to get all items in the shopping list
 app.get('/api/shopping-list', isAuthenticated, async (req, res) => {
   const userId = req.session.userId;
 
@@ -197,7 +185,6 @@ app.get('/api/shopping-list', isAuthenticated, async (req, res) => {
   }
 });
 
-// Route to update item quantity
 app.put('/api/shopping-list/:id', isAuthenticated, async (req, res) => {
   const { id } = req.params;
   const { quantity } = req.body;
@@ -211,7 +198,6 @@ app.put('/api/shopping-list/:id', isAuthenticated, async (req, res) => {
   }
 });
 
-// Route to delete item from the shopping list
 app.delete('/api/shopping-list/:id', isAuthenticated, async (req, res) => {
   const { id } = req.params;
 

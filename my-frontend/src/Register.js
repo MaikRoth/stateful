@@ -18,9 +18,9 @@ const Register = ({ onRegister }) => {
         alert('Registration successful. Please login.');
         setUsername('');
         setPassword('');
-        onRegister(); // Notify parent component of successful registration
+        onRegister(); 
       } else {
-        alert('Registration failed. Please try again.'); // Check server-side logs for more info
+        alert('Registration failed. Please try again.'); 
       }
     } catch (error) {
       console.error('Error registering:', error);

@@ -35,7 +35,7 @@ const ShoppingList = () => {
           body: JSON.stringify({ item: newItem, quantity: newItemQuantity }),
         });
         if (response.ok) {
-          const data = await response.json(); // Assume backend returns the new item with ID
+          const data = await response.json(); 
           setItems([...items, data]);
           setNewItem("");
           setNewItemQuantity(1);

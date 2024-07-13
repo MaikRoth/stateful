@@ -16,7 +16,7 @@ const Login = ({ onLogin }) => {
       });
       if (response.ok) {
         const data = await response.json();
-        onLogin(data.username, data.visited); // Notify parent component of successful login
+        onLogin(data.username, data.visited); 
       } else {
         alert('Login failed. Please check your username and password.');
       }
